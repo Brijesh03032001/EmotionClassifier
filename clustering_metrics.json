@@ -1,0 +1,11 @@
+{
+  "table": "deeser_songs",
+  "k_clusters": 4,
+  "feature_columns": [
+    "tempo",
+    "energy",
+    "brightness"
+  ],
+  "row_count": 4620,
+  "silhouette_score": 0.24511389927698066
+}
