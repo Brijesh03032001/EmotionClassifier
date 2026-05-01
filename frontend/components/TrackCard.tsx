@@ -88,7 +88,7 @@ export default function TrackCard({ track, queue }: TrackCardProps) {
           {isCurrent ? (
             <WaveformBars playing={isThisPlaying} />
           ) : (
-            <span className="text-sm text-[#AE759F]/40 font-mono group-hover:opacity-0 transition-opacity">
+            <span className="text-sm text-[#c8a0e0]/50 font-mono group-hover:opacity-0 transition-opacity">
               {track.position}
             </span>
           )}
@@ -121,7 +121,7 @@ export default function TrackCard({ track, queue }: TrackCardProps) {
         {/* Track info */}
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 mb-0.5">
-            <span className="text-white font-medium truncate text-sm leading-snug">
+            <span className="text-white font-semibold truncate text-sm leading-snug">
               {track.title}
             </span>
             {isCurrent && (
@@ -133,9 +133,9 @@ export default function TrackCard({ track, queue }: TrackCardProps) {
               </span>
             )}
           </div>
-          <p className="text-[#AE759F]/60 text-xs truncate">{track.artist}</p>
+          <p className="text-[#d4aaee] text-xs truncate">{track.artist}</p>
           {track.transition_note && (
-            <p className="text-[#D8B4E2]/30 text-[10px] mt-0.5 italic truncate">
+            <p className="text-[#c8a0e0]/50 text-[10px] mt-0.5 italic truncate">
               {track.transition_note}
             </p>
           )}
@@ -157,7 +157,7 @@ export default function TrackCard({ track, queue }: TrackCardProps) {
         </div>
 
         {/* BPM */}
-        <span className="hidden md:block text-xs text-[#AE759F]/40 font-mono w-16 text-right shrink-0">
+        <span className="hidden md:block text-xs text-[#c8a0e0]/60 font-mono w-16 text-right shrink-0">
           {Math.round(track.tempo ?? 0)} BPM
         </span>
 

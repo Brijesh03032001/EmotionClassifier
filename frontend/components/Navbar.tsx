@@ -46,7 +46,7 @@ export default function Navbar() {
 
         <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full glass text-xs text-[#BC96E6] border border-[#BC96E6]/20">
           <span className="w-1.5 h-1.5 rounded-full bg-[#BC96E6] animate-pulse" />
-          AI Active
+          Live
         </div>
       </div>
     </motion.header>

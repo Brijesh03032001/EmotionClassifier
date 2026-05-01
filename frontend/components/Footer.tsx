@@ -20,9 +20,9 @@ export default function Footer() {
               Moodify
             </span>
           </div>
-          <p className="text-[#AE759F]/50 text-sm leading-relaxed max-w-xs">
-            AI-powered emotional music retrieval. Describe your feeling, get
-            the perfect soundtrack.
+          <p className="text-[#c8a0e0]/70 text-sm leading-relaxed max-w-xs">
+            Emotion-driven music retrieval. Describe your feeling in plain English
+            and get the perfect soundtrack.
           </p>
         </div>
 
@@ -31,7 +31,7 @@ export default function Footer() {
           <h4 className="text-white text-sm font-semibold mb-4 uppercase tracking-wider">
             Under the Hood
           </h4>
-          <ul className="space-y-2 text-[#AE759F]/60 text-sm">
+          <ul className="space-y-2 text-[#c8a0e0]/70 text-sm">
             <li>sentence-transformers/all-MiniLM-L6-v2</li>
             <li>Supabase pgvector (1536-dim)</li>
             <li>FastAPI + Python 3.11</li>
@@ -45,13 +45,13 @@ export default function Footer() {
           <h4 className="text-white text-sm font-semibold mb-4 uppercase tracking-wider">
             Project
           </h4>
-          <ul className="space-y-2 text-[#AE759F]/60 text-sm">
+          <ul className="space-y-2 text-[#c8a0e0]/70 text-sm">
             <li>Data Mining Course Project</li>
             <li>Emotion Clustering + RAG Retrieval</li>
             <li>Benchmark avg quality: 0.7180</li>
             <li>Precision@5: 0.74</li>
           </ul>
-          <div className="mt-4 flex items-center gap-2 text-[#AE759F]/40 text-xs">
+          <div className="mt-4 flex items-center gap-2 text-[#c8a0e0]/50 text-xs">
             <GitBranch className="w-3.5 h-3.5" />
             <span>emotion-classifier</span>
           </div>
@@ -59,7 +59,7 @@ export default function Footer() {
       </div>
 
       <div className="border-t border-[rgba(188,150,230,0.08)] py-4">
-        <p className="text-center text-[#AE759F]/30 text-xs">
+        <p className="text-center text-[#c8a0e0]/40 text-xs">
           30-second previews via Deezer API &middot; No audio stored &middot; For educational use
         </p>
       </div>
