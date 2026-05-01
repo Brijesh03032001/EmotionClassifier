@@ -53,14 +53,18 @@ class EmbeddingPipeline:
         key = os.getenv("SUPABASE_SERVICE_ROLE_KEY", "").strip()
 
         if not url or not key:
-            raise EnvironmentError("Missing SUPABASE_URL / SUPABASE_SERVICE_ROLE_KEY in .env")
+            raise EnvironmentError(
+                "Missing SUPABASE_URL / SUPABASE_SERVICE_ROLE_KEY in .env"
+            )
 
         return create_client(url, key)
 
     def fetch_pending_rows(self) -> List[Dict]:
         response = (
             self.supabase.table(self.config.table_name)
-            .select("id,track_id,title,artist,album_name,tempo,energy,brightness,emotion_cluster")
+            .select(
+                "id,track_id,title,artist,album_name,tempo,energy,brightness,emotion_cluster"
+            )
             .is_("embedding", "null")
             .order("id")
             .limit(self.config.fetch_batch_size)
@@ -178,7 +182,9 @@ class EmbeddingPipeline:
                 batch_updated += self.update_rows(chunk)
 
             total_updated += batch_updated
-            log.info("Processed batch: fetched=%s, updated=%s", len(batch), batch_updated)
+            log.info(
+                "Processed batch: fetched=%s, updated=%s", len(batch), batch_updated
+            )
 
         log.info("Embedding pipeline complete. Total rows updated: %s", total_updated)
 

@@ -34,12 +34,16 @@ def create_supabase_client():
     key = os.getenv("SUPABASE_SERVICE_ROLE_KEY", "").strip()
 
     if not url or not key:
-        raise EnvironmentError("Missing SUPABASE_URL / SUPABASE_SERVICE_ROLE_KEY in .env")
+        raise EnvironmentError(
+            "Missing SUPABASE_URL / SUPABASE_SERVICE_ROLE_KEY in .env"
+        )
 
     return create_client(url, key)
 
 
-def build_text_for_embedding(title: Optional[str], artist: Optional[str], album_name: Optional[str]) -> str:
+def build_text_for_embedding(
+    title: Optional[str], artist: Optional[str], album_name: Optional[str]
+) -> str:
     values = [title or "", artist or "", album_name or ""]
     return " | ".join(value for value in values if value).strip()
 
@@ -223,14 +227,18 @@ def run() -> None:
 
     first_id = pending_rows[0]["id"]
     last_id = pending_rows[-1]["id"]
-    log.info(f"Processing chunk size: {len(pending_rows)} (id range {first_id} -> {last_id})")
+    log.info(
+        f"Processing chunk size: {len(pending_rows)} (id range {first_id} -> {last_id})"
+    )
 
     success = 0
     failed = 0
     upsert_buffer: List[Dict] = []
 
     try:
-        for row in tqdm(pending_rows, total=len(pending_rows), desc="Librosa Enrich", unit="song"):
+        for row in tqdm(
+            pending_rows, total=len(pending_rows), desc="Librosa Enrich", unit="song"
+        ):
             preview_url = get_fresh_preview_url(row["track_id"], row.get("url"))
             if not preview_url:
                 failed += 1
@@ -270,7 +278,9 @@ def run() -> None:
                 flush_upsert_batch(supabase, upsert_buffer)
                 upsert_buffer.clear()
     except KeyboardInterrupt:
-        log.warning("Interrupted by user. Flushing completed rows in buffer before exit...")
+        log.warning(
+            "Interrupted by user. Flushing completed rows in buffer before exit..."
+        )
         if upsert_buffer:
             flush_upsert_batch(supabase, upsert_buffer)
             upsert_buffer.clear()
@@ -279,7 +289,9 @@ def run() -> None:
     if upsert_buffer:
         flush_upsert_batch(supabase, upsert_buffer)
 
-    log.info(f"Chunk complete. success={success}, failed={failed}, requested={len(pending_rows)}")
+    log.info(
+        f"Chunk complete. success={success}, failed={failed}, requested={len(pending_rows)}"
+    )
 
 
 if __name__ == "__main__":

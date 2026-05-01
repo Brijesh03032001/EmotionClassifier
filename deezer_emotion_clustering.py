@@ -55,7 +55,9 @@ class EmotionClusterPipeline:
         key = os.getenv("SUPABASE_SERVICE_ROLE_KEY", "").strip()
 
         if not url or not key:
-            raise EnvironmentError("Missing SUPABASE_URL / SUPABASE_SERVICE_ROLE_KEY in .env")
+            raise EnvironmentError(
+                "Missing SUPABASE_URL / SUPABASE_SERVICE_ROLE_KEY in .env"
+            )
 
         return create_client(url, key)
 
@@ -96,7 +98,9 @@ class EmotionClusterPipeline:
         scaler = StandardScaler()
         scaled = scaler.fit_transform(df[FEATURE_COLUMNS])
 
-        model = KMeans(n_clusters=k_clusters, init="k-means++", random_state=42, n_init="auto")
+        model = KMeans(
+            n_clusters=k_clusters, init="k-means++", random_state=42, n_init="auto"
+        )
         labels = model.fit_predict(scaled)
         score = silhouette_score(scaled, labels)
 
@@ -114,7 +118,6 @@ class EmotionClusterPipeline:
 
     @staticmethod
     def print_cluster_profile(summary: pd.DataFrame) -> None:
-
         log.info("Cluster profile (original feature scale):")
         print(summary.to_string(index=False, float_format=lambda x: f"{x:0.4f}"))
 
@@ -164,7 +167,9 @@ class EmotionClusterPipeline:
 
         log.info(f"Updating emotion_cluster in Supabase for {total} rows...")
 
-        for start in tqdm(range(0, total, self.config.update_batch_size), desc="DB Sync", unit="batch"):
+        for start in tqdm(
+            range(0, total, self.config.update_batch_size), desc="DB Sync", unit="batch"
+        ):
             batch = rows[start : start + self.config.update_batch_size]
             for row in batch:
                 (

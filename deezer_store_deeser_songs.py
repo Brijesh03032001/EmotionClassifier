@@ -38,14 +38,18 @@ def create_supabase_client_and_table() -> tuple:
     table = os.getenv("SUPABASE_TARGET_TABLE", "").strip() or "deeser_songs"
 
     if not url or not key:
-        raise EnvironmentError("Missing SUPABASE_URL / SUPABASE_SERVICE_ROLE_KEY in .env")
+        raise EnvironmentError(
+            "Missing SUPABASE_URL / SUPABASE_SERVICE_ROLE_KEY in .env"
+        )
 
     return create_client(url, key), table
 
 
 def deezer_get(endpoint: str, params: Optional[Dict] = None) -> Optional[Dict]:
     try:
-        response = requests.get(f"{DEEZER_BASE}/{endpoint}", params=params or {}, timeout=DEEZER_TIMEOUT)
+        response = requests.get(
+            f"{DEEZER_BASE}/{endpoint}", params=params or {}, timeout=DEEZER_TIMEOUT
+        )
         response.raise_for_status()
         payload = response.json()
     except Exception as exc:
@@ -134,7 +138,9 @@ def collect_deezer_songs(target_count: int, existing_ids: Set[str]) -> List[Dict
     chart_index = 0
     chart_limit = 100
     while len(collected) < target_count:
-        payload = deezer_get("chart/0/tracks", params={"index": chart_index, "limit": chart_limit})
+        payload = deezer_get(
+            "chart/0/tracks", params={"index": chart_index, "limit": chart_limit}
+        )
         if not payload:
             break
         items = payload.get("data", [])
@@ -184,7 +190,9 @@ def collect_deezer_songs(target_count: int, existing_ids: Set[str]) -> List[Dict
         index = 0
         limit = 100
         while len(collected) < target_count:
-            payload = deezer_get("search", params={"q": query, "index": index, "limit": limit})
+            payload = deezer_get(
+                "search", params={"q": query, "index": index, "limit": limit}
+            )
             if not payload:
                 break
             items = payload.get("data", [])
@@ -203,7 +211,9 @@ def collect_deezer_songs(target_count: int, existing_ids: Set[str]) -> List[Dict
             index = 0
             limit = 100
             while len(collected) < target_count:
-                payload = deezer_get("search", params={"q": query, "index": index, "limit": limit})
+                payload = deezer_get(
+                    "search", params={"q": query, "index": index, "limit": limit}
+                )
                 if not payload:
                     break
                 items = payload.get("data", [])
@@ -222,7 +232,9 @@ def upsert_in_batches(supabase, table_name: str, rows: List[Dict]) -> int:
         return 0
 
     inserted = 0
-    for start in tqdm(range(0, len(rows), UPSERT_BATCH_SIZE), desc="Supabase Upsert", unit="batch"):
+    for start in tqdm(
+        range(0, len(rows), UPSERT_BATCH_SIZE), desc="Supabase Upsert", unit="batch"
+    ):
         batch = rows[start : start + UPSERT_BATCH_SIZE]
         supabase.table(table_name).upsert(batch, on_conflict="track_id").execute()
         inserted += len(batch)

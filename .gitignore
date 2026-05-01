@@ -5,3 +5,25 @@ __pycache__/
 .cache
 .DS_Store
 dm-project
+
+# Checkpoint artifacts
+CHECKPOINT1_DETAILED_REPORT.md
+CHECKPOINT1_SLIDES.html
+CHECKPOINT2_SLIDES.md
+
+# Generated benchmark artifacts
+benchmark_*.html
+benchmark_*.csv
+benchmark_metrics_table.csv
+retrieval_benchmark_results.csv
+
+# Old / one-off scripts
+retrieval_benchmark_old.py
+check_supabase_connection.py
+deezer_backfill_and_cluster.py
+deezer_supabase_backfill.py
+extract_and_upload.py
+
+# Generated output folders
+output/
+data/
