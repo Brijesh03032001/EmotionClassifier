@@ -10,6 +10,10 @@
 [![Supabase](https://img.shields.io/badge/Supabase-pgvector-3ECF8E?logo=supabase&logoColor=white)](https://supabase.com)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
+<br/>
+
+![Moodify UI](frontend/public/landing.png)
+
 </div>
 
 ---
