@@ -61,7 +61,7 @@ EXTENDED_FEATURES = ["tempo", "energy", "brightness", "valence", "danceability",
 PAGE_SIZE = 1000
 
 
-# ── Data fetching ──────────────────────────────────────────────────────────────
+
 
 
 def create_supabase_client():
@@ -106,7 +106,7 @@ def fetch_data(supabase) -> pd.DataFrame:
     return df
 
 
-# ── Metrics helper ─────────────────────────────────────────────────────────────
+
 
 
 def compute_cluster_metrics(
@@ -171,8 +171,6 @@ CLUSTER_INTERP: Dict[Tuple[str, str], str] = {
 }
 
 
-# ── Main ───────────────────────────────────────────────────────────────────────
-
 
 def main():
     supabase = create_supabase_client()
@@ -184,7 +182,6 @@ def main():
     kmeans_k4_X_scaled = None
     kmeans_k4_labels = None
 
-    # ── Feature-set loop ──────────────────────────────────────────────────────
     feature_sets: List[Tuple[str, List[str]]] = [
         ("baseline_3_features",    BASELINE_FEATURES),
         ("extended_audio_features", EXTENDED_FEATURES),
@@ -211,7 +208,6 @@ def main():
         subset_df["pca_y"] = X_pca[:, 1]
         pca_var = pca.explained_variance_ratio_ * 100
 
-        # 1. K-Means
         k_values = [3, 4, 5, 6] if fs_name == "baseline_3_features" else [4]
         for k in k_values:
             log.info(f"K-Means k={k} [{fs_name}]...")
@@ -231,7 +227,6 @@ def main():
                     tmp[["pca_x", "pca_y", "cluster", "method", "title", "artist"]]
                 )
 
-        # 2. Gaussian Mixture Model (k=4)
         log.info(f"GMM k=4 [{fs_name}]...")
         gmm = GaussianMixture(n_components=4, random_state=42, n_init=3)
         gmm_labels = gmm.fit_predict(X_scaled)
@@ -246,7 +241,6 @@ def main():
                 tmp[["pca_x", "pca_y", "cluster", "method", "title", "artist"]]
             )
 
-        # 3. Agglomerative (k=4)
         log.info(f"Agglomerative k=4 [{fs_name}]...")
         agg = AgglomerativeClustering(n_clusters=4, linkage="ward")
         agg_labels = agg.fit_predict(X_scaled)
@@ -261,7 +255,6 @@ def main():
                 tmp[["pca_x", "pca_y", "cluster", "method", "title", "artist"]]
             )
 
-        # 4. DBSCAN (baseline only — show it's unsuitable once)
         if fs_name == "baseline_3_features":
             log.info("DBSCAN [baseline_3_features]...")
             db_model = DBSCAN(eps=0.8, min_samples=10)
@@ -278,13 +271,12 @@ def main():
                 tmp[["pca_x", "pca_y", "cluster", "method", "title", "artist"]]
             )
 
-    # Fill interpretations
     for r in cluster_rows:
         if r["interpretation"] is None:
             key = (r["model"], r["feature_set"])
             r["interpretation"] = CLUSTER_INTERP.get(key, "")
 
-    # ── Save cluster results ──────────────────────────────────────────────────
+
     cluster_df = pd.DataFrame(cluster_rows)
     cluster_df.to_csv("benchmark_cluster_results.csv", index=False)
     log.info("Saved benchmark_cluster_results.csv")
@@ -296,7 +288,6 @@ def main():
     )
     print("=" * 70 + "\n")
 
-    # ── Classification (K-Means k=4 labels, baseline features, 80/20 split) ──
     log.info("Running classification with 80/20 train-test split on K-Means k=4 labels...")
     X_cls = kmeans_k4_X_scaled
     y_cls = kmeans_k4_labels
@@ -357,7 +348,7 @@ def main():
     print(clf_df[["model", "train_rows", "test_rows", "accuracy", "macro_f1"]].to_string(index=False))
     print("=" * 70 + "\n")
 
-    # ── Plot 1: Silhouette bar (baseline only) ────────────────────────────────
+
     sil_df = cluster_df[
         cluster_df["silhouette_score"].notna()
         & (cluster_df["feature_set"] == "baseline_3_features")
@@ -374,7 +365,6 @@ def main():
     fig_sil.write_html("benchmark_silhouette_bar.html")
     log.info("Saved benchmark_silhouette_bar.html")
 
-    # ── Plot 2: Davies-Bouldin grouped by feature set ─────────────────────────
     db_df = cluster_df[cluster_df["davies_bouldin"].notna()].copy()
     db_df["label"] = db_df["model"] + " | " + db_df["feature_set"].str.replace("_", " ")
     fig_db = px.bar(
@@ -389,7 +379,6 @@ def main():
     fig_db.write_html("benchmark_db_comparison.html")
     log.info("Saved benchmark_db_comparison.html")
 
-    # ── Plot 3: Calinski-Harabasz grouped by feature set ──────────────────────
     ch_df = cluster_df[cluster_df["calinski_harabasz_score"].notna()].copy()
     fig_ch = px.bar(
         ch_df, x="model", y="calinski_harabasz_score",
@@ -403,7 +392,6 @@ def main():
     fig_ch.write_html("benchmark_ch_comparison.html")
     log.info("Saved benchmark_ch_comparison.html")
 
-    # ── Plot 4: PCA 2D scatter per method (baseline) ──────────────────────────
     all_scatter = pd.concat(scatter_frames, ignore_index=True)
     fig_scatter = px.scatter(
         all_scatter, x="pca_x", y="pca_y",
@@ -422,7 +410,7 @@ def main():
     fig_scatter.write_html("benchmark_cluster_scatter_2d.html")
     log.info("Saved benchmark_cluster_scatter_2d.html")
 
-    # ── Plot 5: RF feature importance ────────────────────────────────────────
+
     imp_df = pd.DataFrame({
         "feature":    BASELINE_FEATURES,
         "importance": rf_model.feature_importances_,
@@ -438,7 +426,6 @@ def main():
     fig_rf.write_html("benchmark_rf_feature_importance.html")
     log.info("Saved benchmark_rf_feature_importance.html")
 
-    # ── Plot 6: Classification accuracy + F1 bar chart ───────────────────────
     fig_clf = go.Figure()
     fig_clf.add_trace(go.Bar(
         name="Accuracy", x=clf_df["model"], y=clf_df["accuracy"],

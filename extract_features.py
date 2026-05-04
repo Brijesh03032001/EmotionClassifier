@@ -1,9 +1,3 @@
-# =============================================================================
-# Emotion-Aware Playlist Generator — Phase 1: Spotify Feature Extraction
-# =============================================================================
-# requirements:  pip install requests pandas python-dotenv supabase
-# =============================================================================
-
 import os
 import time
 import base64
@@ -15,9 +9,6 @@ import pandas as pd
 from dotenv import load_dotenv
 from requests.exceptions import HTTPError
 
-# ---------------------------------------------------------------------------
-# Logging
-# ---------------------------------------------------------------------------
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s [%(levelname)s] %(message)s",
@@ -25,9 +16,6 @@ logging.basicConfig(
 )
 log = logging.getLogger(__name__)
 
-# ---------------------------------------------------------------------------
-# Config
-# ---------------------------------------------------------------------------
 BASE_URL    = "https://api.spotify.com/v1"
 TOKEN_URL   = "https://accounts.spotify.com/api/token"
 OUTPUT_FILE = Path(__file__).parent / "data" / "spotify_raw_features.csv"
@@ -48,9 +36,6 @@ DEFAULT_PLAYLIST_IDS = [
 ]
 
 
-# ---------------------------------------------------------------------------
-# Step 0 — Get a Bearer token (Client Credentials — no user login needed)
-# ---------------------------------------------------------------------------
 def get_token() -> str:
     """
     Fetches a fresh OAuth2 Bearer token from Spotify using the
@@ -82,9 +67,6 @@ def get_token() -> str:
     return token
 
 
-# ---------------------------------------------------------------------------
-# Step 1 — Raw HTTP GET helper (mirrors the JS fetchWebApi snippet)
-# ---------------------------------------------------------------------------
 def api_get(path: str, token: str, params: dict = None) -> dict:
     """
     GET https://api.spotify.com/v1/<path>
@@ -115,9 +97,6 @@ def api_get(path: str, token: str, params: dict = None) -> dict:
     raise RuntimeError(f"'{path}' failed after 3 retries.")
 
 
-# ---------------------------------------------------------------------------
-# Step 2 — Fetch all tracks from a playlist (handles pagination)
-# ---------------------------------------------------------------------------
 def get_tracks(playlist_id: str, token: str) -> list[dict]:
     """
     Returns a list of track metadata dicts:
@@ -152,7 +131,7 @@ def get_tracks(playlist_id: str, token: str) -> list[dict]:
         for item in data.get("items", []):
             t = item.get("track")
             if not t or not t.get("id"):
-                continue  # skip local/null entries
+                continue
             results.append({
                 "track_id":    t["id"],
                 "track_name":  t["name"],
@@ -240,9 +219,6 @@ def discover_accessible_playlist_ids(
     return discovered
 
 
-# ---------------------------------------------------------------------------
-# Step 3 — Fetch audio features in batches of 100
-# ---------------------------------------------------------------------------
 def get_audio_features(track_ids: list[str], token: str) -> dict[str, dict]:
     """
     Returns a dict: {track_id: {valence, energy, danceability, ...}}
@@ -273,9 +249,6 @@ def get_audio_features(track_ids: list[str], token: str) -> dict[str, dict]:
     return feature_map
 
 
-# ---------------------------------------------------------------------------
-# Step 4 — Merge, clean, return DataFrame
-# ---------------------------------------------------------------------------
 def extract_playlist_features(playlist_id: str) -> pd.DataFrame:
     """
     Full pipeline: auth → tracks → audio features → merge → clean DataFrame.
@@ -347,13 +320,11 @@ def extract_multiple_playlists_features(
             f"(total unique={len(seen_track_ids)})"
         )
 
-    # 1) Ingest user-provided playlists
     for pid in playlist_ids:
         if len(seen_track_ids) >= target_tracks:
             break
         ingest_playlist(pid)
 
-    # 2) Discover additional playlists if target not reached
     if len(seen_track_ids) < target_tracks:
         seed_queries = [
             "top hits",
@@ -385,7 +356,6 @@ def extract_multiple_playlists_features(
         log.warning("No tracks found — returning empty DataFrame.")
         return pd.DataFrame()
 
-    # Optional audio features (if available for your app)
     features = get_audio_features([t["track_id"] for t in all_tracks], token)
 
     if features:
@@ -399,7 +369,6 @@ def extract_multiple_playlists_features(
         log.warning("Saving metadata-only CSV (no audio features).")
         df = pd.DataFrame(all_tracks)
 
-    # Strict final dedupe guard
     before = len(df)
     df.drop_duplicates(subset=["track_id"], inplace=True)
     if len(df) < before:
@@ -419,9 +388,6 @@ def extract_multiple_playlists_features(
     return df
 
 
-# ---------------------------------------------------------------------------
-# Step 5 — Save to CSV
-# ---------------------------------------------------------------------------
 def save_csv(df: pd.DataFrame, path: Path = OUTPUT_FILE) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     df.to_csv(path, index=False)
@@ -484,9 +450,6 @@ def upsert_to_supabase(df: pd.DataFrame) -> None:
     log.info("Supabase sync complete.")
 
 
-# ---------------------------------------------------------------------------
-# Main
-# ---------------------------------------------------------------------------
 if __name__ == "__main__":
     load_dotenv(override=True)
 

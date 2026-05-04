@@ -39,16 +39,9 @@ from retrieval_benchmark import (
 )
 from dataclasses import replace as dc_replace
 
-# ---------------------------------------------------------------------------
-# Globals initialised once at startup
-# ---------------------------------------------------------------------------
 _supabase: Optional[Client] = None
 _model: Optional[SentenceTransformer] = None
 _config = RetrievalConfig()
-
-# ---------------------------------------------------------------------------
-# Deezer preview URL refresh (DB URLs expire — fetch fresh ones)
-# ---------------------------------------------------------------------------
 
 @lru_cache(maxsize=2048)
 def _fresh_preview_url(track_id: str) -> Optional[str]:
@@ -96,7 +89,6 @@ async def lifespan(app: FastAPI):
         f"[api] model={_config.embedding_model_name}  candidates={_config.rpc_candidate_count}"
     )
     yield
-    # shutdown — nothing to clean up
 
 
 app = FastAPI(
@@ -112,10 +104,6 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
-# ---------------------------------------------------------------------------
-# Schemas
-# ---------------------------------------------------------------------------
 
 
 class PlaylistRequest(BaseModel):
@@ -161,10 +149,6 @@ class PlaylistResponse(BaseModel):
     generation_ms: int
 
 
-# ---------------------------------------------------------------------------
-# Helpers
-# ---------------------------------------------------------------------------
-
 CLUSTER_LABELS = {
     0: "Calm / Relaxed",
     1: "Hype / Energetic",
@@ -187,7 +171,6 @@ def _build_playlist(prompt: str, vibe: str, top_n: int) -> PlaylistResponse:
     intent = infer_target_ranges(prompt, vibe)
 
     if intent.intent_type == "transition":
-        # For transition prompts use a balanced start→end split
         start_cands = retrieve_candidates(prompt, config, _supabase, _model, filters={})
         end_cands = retrieve_candidates(prompt, config, _supabase, _model, filters={})
         start_ranked = rerank_candidates(prompt, start_cands, bp, config)
@@ -212,7 +195,6 @@ def _build_playlist(prompt: str, vibe: str, top_n: int) -> PlaylistResponse:
             reranked, top_n, retrieve_cfg.max_artists_per_result_set
         )
 
-    # Refresh expired Deezer CDN preview URLs in parallel
     _refresh_previews(raw_tracks)
 
     tracks = [
@@ -244,10 +226,6 @@ def _build_playlist(prompt: str, vibe: str, top_n: int) -> PlaylistResponse:
         generation_ms=elapsed_ms,
     )
 
-
-# ---------------------------------------------------------------------------
-# Routes
-# ---------------------------------------------------------------------------
 
 
 @app.get("/health", tags=["meta"])

@@ -94,15 +94,13 @@ def extract_temporal_features(audio_path: Path) -> dict:
     centroid = librosa.feature.spectral_centroid(y=y, sr=sr)[0]
     chroma = librosa.feature.chroma_stft(y=y, sr=sr)
 
-    # --- Primary metrics ---
     mean_rms = float(np.mean(rms))
     mean_zcr = float(np.mean(zcr))
     mean_flatness = float(np.mean(flatness))
     mean_rolloff = float(np.mean(rolloff))
     mean_centroid = float(np.mean(centroid))
 
-    # --- Spotify-like proxy feature engineering ---
-    energy = clip01(normalize(mean_rms, 0.01, 0.35))
+energy = clip01(normalize(mean_rms, 0.01, 0.35))
 
     # Valence proxy from spectral brightness + tempo liveliness
     valence = clip01(

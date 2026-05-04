@@ -52,9 +52,6 @@ logging.basicConfig(
 log = logging.getLogger("retrieval_benchmark")
 
 
-# -----------------------------------------------------------------
-# Config + data models
-# -----------------------------------------------------------------
 
 
 @dataclass
@@ -109,9 +106,6 @@ class RetrievalIntent:
     retrieval_query: Optional[str] = None
 
 
-# -----------------------------------------------------------------
-# Vibe profiles
-# -----------------------------------------------------------------
 
 VIBE_PROFILE: Dict[str, Dict[str, Any]] = {
     "calm": {
@@ -205,9 +199,6 @@ MOOD_RETRIEVAL_QUERY: Dict[str, str] = {
 }
 
 
-# -----------------------------------------------------------------
-# 1. Intent + range inference
-# -----------------------------------------------------------------
 
 
 def infer_intent_type(prompt: str) -> str:
@@ -266,9 +257,6 @@ def infer_target_ranges(prompt: str, expected_vibe: str) -> RetrievalIntent:
     )
 
 
-# -----------------------------------------------------------------
-# 2. Retrieval (DataFrame + post-filters on existing DB data)
-# -----------------------------------------------------------------
 
 
 def _embed_query(text: str, model: SentenceTransformer, target_dim: int) -> List[float]:
@@ -359,9 +347,6 @@ def retrieve_candidates(
         return pd.DataFrame()
 
 
-# -----------------------------------------------------------------
-# 3. Multi-factor reranking
-# -----------------------------------------------------------------
 
 
 def _range_fit(
@@ -472,9 +457,6 @@ def rerank_candidates(
     return df.sort_values("final_score", ascending=False).reset_index(drop=True)
 
 
-# -----------------------------------------------------------------
-# 4. Diversity-aware selection + transition sequencing
-# -----------------------------------------------------------------
 
 
 def select_top_tracks(
@@ -565,9 +547,6 @@ def build_transition_playlist(
     return tracks[:top_n]
 
 
-# -----------------------------------------------------------------
-# 5. Evaluation metrics
-# -----------------------------------------------------------------
 
 
 def _avg(vals: Iterable[float]) -> float:
@@ -748,9 +727,6 @@ def evaluate_prompt(
     }
 
 
-# -----------------------------------------------------------------
-# 6. Benchmark runner
-# -----------------------------------------------------------------
 
 
 def run_single_benchmark(
@@ -856,9 +832,6 @@ def run_single_benchmark(
     return metrics, debug
 
 
-# -----------------------------------------------------------------
-# 7. Output helpers
-# -----------------------------------------------------------------
 
 
 def save_results(results: List[Dict], config: RetrievalConfig) -> pd.DataFrame:
@@ -957,9 +930,6 @@ def print_summary(df: pd.DataFrame) -> None:
         print("Failed prompts         : none")
 
 
-# -----------------------------------------------------------------
-# 8. Benchmark prompt set
-# -----------------------------------------------------------------
 
 
 def _load_prompts_csv(path: Path) -> List[BenchmarkPrompt]:
@@ -1133,9 +1103,6 @@ def load_benchmark_prompts(config: RetrievalConfig) -> List[BenchmarkPrompt]:
     ]
 
 
-# -----------------------------------------------------------------
-# Entry point
-# -----------------------------------------------------------------
 
 
 def main() -> None:

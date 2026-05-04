@@ -51,9 +51,6 @@ EXAMPLE_PROMPTS = [
     "I need deep focus music for studying.",
 ]
 
-# ---------------------------------------------------------------------------
-# Page config
-# ---------------------------------------------------------------------------
 st.set_page_config(
     page_title="EmotionClassifier · Playlist",
     page_icon="🎵",
@@ -86,15 +83,9 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
-# ---------------------------------------------------------------------------
-# Header
-# ---------------------------------------------------------------------------
 st.title("🎵 EmotionClassifier")
 st.caption("Type how you feel — get a playlist that matches.")
 
-# ---------------------------------------------------------------------------
-# Sidebar
-# ---------------------------------------------------------------------------
 with st.sidebar:
     st.header("⚙️ Settings")
     top_n = st.slider("Tracks to return", 1, 10, 5)
@@ -126,9 +117,6 @@ with st.sidebar:
     st.divider()
     st.caption("API: " + API_URL)
 
-# ---------------------------------------------------------------------------
-# Main input
-# ---------------------------------------------------------------------------
 prompt = st.text_area(
     "Your mood / request",
     value=st.session_state.get("prompt_input", ""),
@@ -147,9 +135,6 @@ with col_clear:
         st.session_state["prompt_input"] = ""
         st.rerun()
 
-# ---------------------------------------------------------------------------
-# API call + results
-# ---------------------------------------------------------------------------
 if submitted:
     if not prompt.strip():
         st.warning("Please enter a mood or request first.")
@@ -173,7 +158,6 @@ if submitted:
                 st.error(f"API error {resp.status_code}: {resp.text}")
                 st.stop()
 
-        # Intent summary
         st.divider()
         c1, c2, c3 = st.columns(3)
         with c1:
@@ -187,7 +171,6 @@ if submitted:
 
         st.subheader(f"🎶 Your playlist ({len(data['tracks'])} tracks)")
 
-        # Energy bar chart
         if data["tracks"]:
             import pandas as pd
 
@@ -210,7 +193,6 @@ if submitted:
                 with tab2:
                     st.bar_chart(chart_df.set_index("#")["Tempo"])
 
-        # Track cards
         for t in data["tracks"]:
             label = t.get("cluster_label", "Unknown")
             color = CLUSTER_COLORS.get(label, "#888")
@@ -246,6 +228,5 @@ if submitted:
             elif t.get("deezer_link"):
                 st.markdown(f"[▶ Listen on Deezer]({t['deezer_link']})")
 
-        # Raw JSON expander
         with st.expander("🔍 Raw API response"):
             st.json(data)
